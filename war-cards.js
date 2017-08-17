@@ -306,7 +306,10 @@ Promise.resolve(null)
 		const code = document.createElement("code");
 		const info = document.getElementById("info");
 		code.innerHTML = report;
-		info.appendChild(code);
+		const div = document.createElement('div');
+		div.classList = 'gameInfo';
+		div.appendChild(code);
+		info.appendChild(div);
 	});
 });
 
