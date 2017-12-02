@@ -293,6 +293,8 @@ let gameStorage = [];
 let handData = [];
 let graphX = [];
 let graphY = [];
+var total = 0;
+var handBatch = 26;
 
 var pieData = [{
 	values: [0,0],
@@ -333,31 +335,52 @@ Promise.resolve(null)
 	return null;
 })
 .then(() => {
-	for (i = 0; i < 20; i++) {
+	for (i = 0; i < 30; i++) {
 		graphX.push(0);
 
-		const num1 = i * 75;
-		const num2 = ((i + 1) * 75) - 1;
-		if ( i == 19) {
-			graphY.push(`greater than ${i*75}`);
+		const num1 = i * handBatch;
+		const num2 = ((i + 1) * handBatch) - 1;
+		if ( i == 29) {
+			graphY.push(`greater than ${i*handBatch}`);
 		} else {
 			graphY.push(`${num1} - ${num2}`);
 		}
 	}
-	gameStorage.forEach(g => {
+	gameStorage.forEach((g, index) => {
+		// console.log('Game index: ', index);
 		var cat = EvaluateHand(g.numHands);
 		graphX[cat] = graphX[cat] + 1;
-
-		console.log(g);
+		total++
+		// console.log(g);
 		var winner = g.gameWinner;
 		pieData[0].values[winner] = pieData[0].values[winner] + 1;
 	});
+	return gameStorage;
+})
+.then( gameStorage => {
+	// console.log('TOTAL: ', graphX);
+	window.graphX = graphX;
 	TESTER = document.getElementById('tester');
 
-	Plotly.plot( TESTER, [{
-		x: graphY,
-		y: graphX }], { 
-		margin: { t: 0 } } );
+	Plotly.plot( TESTER, [
+			{
+				x: graphY,
+				y: graphX
+			}
+		],
+		{ 
+			margin: {
+				t: 0,
+				b: 200
+			  },
+			xaxis: {
+				title: "number of hands"
+			},
+			yaxis: {
+				title: "number of times"
+			}
+		} 
+	);
 	
 	var WinnerPie = document.getElementById('winner-pie');
 
@@ -376,7 +399,7 @@ Promise.resolve(null)
 	var $dataElem = document.getElementsByClassName('game-info');
 	for (i = 0; i < $dataElem.length; i++) {
 		var elem = $dataElem[i];
-		console.log('ELEM: ', elem);
+		// console.log('ELEM: ', elem);
 		fadeIn(elem)
 	};
 });
@@ -397,7 +420,7 @@ function PlotlyReady() {
 PlotlyReady();
 
 function EvaluateHand(h) {
-	const category = Math.floor(h % 75);
+	const category = Math.floor(h / handBatch);
 	return category;
 }
 
