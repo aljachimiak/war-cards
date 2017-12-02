@@ -139,7 +139,7 @@ class Player {
 }
 
 class Game {
-	constructor() {
+	constructor(providedDeck) {
 		this.players = [];
 		this.table = {
 			player0: [],
@@ -157,7 +157,11 @@ class Game {
 		const player2 = new Player('Bob');
 		let deck = Cards.makeDeck(13);
 
-		deck = Cards.shuffle(deck);
+		if (providedDeck) {
+			deck = providedDeck.slice(0);
+		} else {
+			deck = Cards.shuffle(deck);
+		}
 
 		let newData = Cards.deal({
 			deck,
@@ -244,8 +248,8 @@ class Game {
 	}
 }
 
-function playGame() {
-	const game = new Game();
+function playGame(providedDeck) {
+	const game = new Game(providedDeck);
 
 	while(!game.gameComplete) {
 		game.playHand(false);
@@ -280,11 +284,24 @@ function playGame() {
 	report += `High Hand Value: winner ${winnerHighValue} : ${loserHighValue}\n`;
 
 	report += '=====================================\n';
-
+	gameStorage.push(game);
 	return report;
 }
 
 let games = [];
+let gameStorage = [];
+let handData = [];
+let graphX = [];
+let graphY = [];
+
+var pieData = [{
+	values: [0,0],
+	labels: ['Art', 'Bob'],
+	type: 'pie'
+}]
+
+let myDeck = Cards.makeDeck(13);
+myDeck = Cards.shuffle(myDeck);
 
 function promiseGame() {
 	return Promise.resolve()
@@ -310,8 +327,101 @@ Promise.resolve(null)
 		div.classList = 'gameInfo';
 		div.appendChild(code);
 		info.appendChild(div);
+		// reportStorage.push(report);
 	});
+	// return PlotlyReady();
+	return null;
+})
+.then(() => {
+	for (i = 0; i < 20; i++) {
+		graphX.push(0);
+
+		const num1 = i * 75;
+		const num2 = ((i + 1) * 75) - 1;
+		if ( i == 19) {
+			graphY.push(`greater than ${i*75}`);
+		} else {
+			graphY.push(`${num1} - ${num2}`);
+		}
+	}
+	gameStorage.forEach(g => {
+		var cat = EvaluateHand(g.numHands);
+		graphX[cat] = graphX[cat] + 1;
+
+		console.log(g);
+		var winner = g.gameWinner;
+		pieData[0].values[winner] = pieData[0].values[winner] + 1;
+	});
+	TESTER = document.getElementById('tester');
+
+	Plotly.plot( TESTER, [{
+		x: graphY,
+		y: graphX }], { 
+		margin: { t: 0 } } );
+	
+	var WinnerPie = document.getElementById('winner-pie');
+
+	Plotly.plot(WinnerPie, pieData,{
+		height: 400,
+		width: 500
+	  });
+
+	
+
+	/* Current Plotly.js version */
+	console.log( Plotly.BUILD );
+	return null;
+})
+.then(() => {
+	var $dataElem = document.getElementsByClassName('game-info');
+	for (i = 0; i < $dataElem.length; i++) {
+		var elem = $dataElem[i];
+		console.log('ELEM: ', elem);
+		fadeIn(elem)
+	};
 });
+
+var plotlyTO = 0;
+
+function PlotlyReady() {
+	plotlyTO = setTimeout(function() {
+		if (typeof Plotly != 'undefined') {
+			clearTimeout(plotlyTO);
+			console.log("noice");
+			return true;
+		} else {
+			PlotlyReady();
+		}
+	}, 10);
+}
+PlotlyReady();
+
+function EvaluateHand(h) {
+	const category = Math.floor(h % 75);
+	return category;
+}
+
+function fadeIn(el) {
+	var opacity = 0
+  
+	el.style.opacity = 0
+	el.style.filter = ''
+  
+	var last = +new Date
+	var tick = function() {
+	  el.style.display = "block";
+	  opacity += (new Date - last) / 400
+	  el.style.opacity = opacity
+	  el.style.filter = 'alpha(opacity=' + (100 * opacity)|0 + ')'
+  
+	  last = +new Date
+  
+	  if (opacity < 1)
+		(window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16)
+	}
+  
+	tick()
+  }
 
 
 

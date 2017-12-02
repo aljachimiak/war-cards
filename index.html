@@ -8,15 +8,31 @@
 			.gameInfo {
 				margin: 40px;
 			}
+			#tester {
+				margin: 10px 30px;
+			}
 		</style>
 	</head>
 
 	<body>
-		<pre id="info">	</pre>
+		<h1>1000 Games of War!</h1>
+		<div class="game-info" style="display:none;">
+			<h2>How many hands per game?</h2>
+			<div id="tester"></div>
+		</div>
+		<div class="game-info" style="display:none;">
+			<h2>Who one more games?</h2>
+			<div id="winner-pie"></div>
+		</div>
+		<div class="game-info" style="display:none;">
+			<h2>Detailed hand-by-hand report</h2>
+			<pre id="info">	</pre>
+		</div>
 		
 	</body>
 
 	<footer>
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<script type="text/javascript" src="war-cards.js"></script>
 	</footer>
 </html>
